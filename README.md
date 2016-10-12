@@ -2,7 +2,6 @@ jquery.flot.comments.js
 =======================
 
 Flot plugin that shows extra comments to the flot chart. There are several types of comments:
- - **tooltip**: Show the data point value (x, y) when mouse over a data point;
  - **comment**: A callout style textbox that always shows at the specified position;
  - **sidenote**: Texts that shows at the right side of the chart that only associated with the
  y-axis coordinate.
@@ -10,7 +9,7 @@ Flot plugin that shows extra comments to the flot chart. There are several types
 **Usage:**
 
 Inside the `<head></head>` area of your html page, add the following lines:
-    
+
 ```html
 <script type="text/javascript" src="http://zizhujy.com/Scripts/flot/jquery.flot.comment.js"></script>
 ```
@@ -26,7 +25,8 @@ var options = {
 		{
 			x: -2,
 			y: 1,
-			contents: "this point 1"
+			contents: "this point 1",
+            position: "right"           // draw to the right of (-2,1)
 		},
 		...
 	],

@@ -217,6 +217,20 @@ if (!Array.prototype.max) {
     var classes = null;
     var surface = null;
 
+    var inverse = {
+        'bottom': 'top',
+        'top': 'bottom',
+        'left': 'right',
+        'right': 'left',
+        'center': 'center'
+    };
+    var transverse = {
+        'bottom': 'left',
+        'top': 'left',
+        'left': 'top',
+        'right': 'top'
+    };
+
     // plugin default options
     var options = {
         grid: {
@@ -243,18 +257,6 @@ if (!Array.prototype.max) {
                 position: 'bottom'
             },
             htmlTemplate: function (commentContent, notchPosition) {
-                var inverse = {
-                    'bottom': 'top',
-                    'top': 'bottom',
-                    'left': 'right',
-                    'right': 'left'
-                };
-                var transverse = {
-                    'bottom': 'left',
-                    'top': 'left',
-                    'left': 'top',
-                    'right': 'top'
-                };
 
                 notchPosition = notchPosition || this.notch.position;
 
@@ -355,7 +357,7 @@ if (!Array.prototype.max) {
 
         var commentOptions = plot.getOptions().comment || {};
 
-        var notchPosition = comment.position
+        var notchPosition = inverse[comment.position]
             || comment.notch && comment.notch.position
             || commentOptions.notch && commentOptions.notch.position
             || 'bottom';
