@@ -616,12 +616,13 @@ if (!Array.prototype.max) {
     }
 
     // helpers:
+    var measurehtml_cache = {};
+
     function measureHtmlSize(html, measureContainer, style) {
 
-        // This global variable is used to cache repeated calls with the same arguments
-        if (typeof (__measurehtml_cache__) == "object" && __measurehtml_cache__[html] &&
-            __measurehtml_cache__[html][JSON.stringify(style)]) {
-            return __measurehtml_cache__[html][JSON.stringify(style)];
+        // This is used to cache repeated calls with the same arguments
+        if (measurehtml_cache[html] && measurehtml_cache[html][JSON.stringify(style)]) {
+            return measurehtml_cache[html][JSON.stringify(style)];
         }
 
         measureContainer = measureContainer || document.body;
@@ -668,15 +669,11 @@ if (!Array.prototype.max) {
         measureContainer.removeChild(div);
 
         // Add the sizes to the cache as adding DOM elements is costly and can cause slow downs
-        if (typeof (__measurehtml_cache__) != "object") {
-            __measurehtml_cache__ = {};
+        if (typeof (measurehtml_cache[html]) != 'object') {
+            measurehtml_cache[html] = {};
         }
 
-        if (typeof (__measurehtml_cache__[html]) != 'object') {
-            __measurehtml_cache__[html] = {};
-        }
-
-        __measurehtml_cache__[html][JSON.stringify(style)] = result;
+        measurehtml_cache[html][JSON.stringify(style)] = result;
 
         return result;
     }
