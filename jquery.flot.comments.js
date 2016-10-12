@@ -3,10 +3,9 @@
 //  Copyright (c) 2013 - 2014 http://zizhujy.com.
 //
 //Flot plugin that shows extra comments to the flot chart. There are several types of comments:
-//    - **tooltip**: Show the data point value (x, y) when mouse over a data point;
-//- **comment**: A callout style textbox that always shows at the specified position;
-//- **sidenote**: Texts that shows at the right side of the chart that only associated with the
-//    y-axis coordinate.
+//    - **comment**: A callout style textbox that always shows at the specified position;
+//    - **sidenote**: Texts that shows at the right side of the chart that only associated with the
+//        y-axis coordinate.
 //
 //   **Usage:**
 //
@@ -224,31 +223,6 @@ if (!Array.prototype.max) {
             hoverable: true,
             clickable: true
         },
-        tooltip: {
-            id: "jquery-flot-comments-tooltip",
-            css: {
-                "position": "absolute",
-                "display": "none",
-                "border": "1px solid #fdd",
-                "padding": "2px",
-                "background-color": "#fee",
-                "opacity": "0.80"
-            },
-            position: {
-                offsetX: 5,
-                offsetY: 5,
-                x: function (x) {
-                    return {
-                        "left": x + (this.offsetX || 5)
-                    };
-                },
-                y: function (y) {
-                    return {
-                        "top": y + (this.offsetY || 5)
-                    };
-                }
-            }
-        },
         comment: {
             "class": "jquery-flot-comment",
             wrapperCss: {
@@ -324,44 +298,6 @@ if (!Array.prototype.max) {
             }
         }
     };
-
-    // Tooltip:
-    var previousPoint = null;
-
-    function initTooltip(plot) {
-
-        $(plot.getPlaceholder()).bind("plothover", function (event, pos, item) {
-            if (item) {
-                if (previousPoint != item.dataIndex) {
-                    previousPoint = item.dataIndex;
-
-                    var x = item.datapoint[0].toFixed(2),
-                        y = item.datapoint[1].toFixed(2);
-
-                    $("#" + plot.getOptions().tooltip.id).remove();
-                    showTooltip(item.pageX, item.pageY, "(" + x + ", " + y + ") <br />" + (item.serials ? (item.serials.label || "") : ""));
-                }
-            } else {
-                previousPoint = null;
-                $("#" + plot.getOptions().tooltip.id).remove();
-            }
-        });
-
-        $(plot.getPlaceholder()).bind("plotclick", function (event, pos, item) {
-            if (item) {
-                plot.highlight(item.series, item.datapoint);
-            }
-        });
-
-        // Nested functions
-        function showTooltip(x, y, contents) {
-            $("<div id='" + plot.getOptions().tooltip.id + "'>" + contents + "</div>")
-                .css(plot.getOptions().tooltip.css)
-                .css(plot.getOptions().tooltip.position.x(x))
-                .css(plot.getOptions().tooltip.position.y(y))
-                .appendTo("body").fadeIn(200);
-        }
-    }
 
     // Comment:
     function initComment(plot) {
@@ -718,7 +654,6 @@ if (!Array.prototype.max) {
         classes = theClasses;
 
         initSidenote(plot);
-        initTooltip(plot);
         initComment(plot);
         initMarking(plot);
 
