@@ -245,14 +245,24 @@ if (!Array.prototype.max) {
             htmlTemplate: function (commentContent, notchPosition) {
                 var inverse = {
                     'bottom': 'top',
-                    'top': 'bottom'
+                    'top': 'bottom',
+                    'left': 'right',
+                    'right': 'left'
                 };
-
-                var template = "<div class='{1}'><div class='callout' style='position: relative; margin: 0; box-sizing: border-box; padding: 5px; width: auto; _width: 1%\0 /* IE 8 width hack */;'><div style='line-height: 1em; position: relative;'>{{0}}</div><b class='notch' style='position: absolute; {{1}}: -{0}; left: 50%; margin: 0 0 0 -{0}; border-{{2}}: {0} solid {2}; border-left: {0} solid transparent; border-right: {0} solid transparent; border-{{1}}: 0; padding: 0; width: 0; height: 0; font-size: 0; line-height: 0; _border-right-color: pink; _border-left-color: pink; _filter: chroma(color=pink);'></b></div></div>".format(this.notch.size, this["class"], this.notch.color);
+                var transverse = {
+                    'bottom': 'left',
+                    'top': 'left',
+                    'left': 'top',
+                    'right': 'top'
+                };
 
                 notchPosition = notchPosition || this.notch.position;
 
-                return template.format(commentContent, notchPosition, inverse[notchPosition]);
+                var notch = notchPosition === 'center' ? '' : "<b class='notch' style='position: absolute; {1}: -{0}; {4}: 50%; margin: 0; margin-{4}: -{0}; border: {0} solid transparent; border-{3}-color: {2}; border-{1}: 0; padding: 0; width: 0; height: 0; font-size: 0; line-height: 0;'></b>".format(this.notch.size, notchPosition, this.notch.color, inverse[notchPosition], transverse[notchPosition]);
+
+                var template = "<div class='{1}'><div class='callout' style='position: relative; margin: 0; box-sizing: border-box; padding: 5px; width: auto; _width: 1%\0 /* IE 8 width hack */;'><div style='line-height: 1em; position: relative;'>{0}</div>{2}</div></div>";
+
+                return template.format(commentContent, this["class"], notch);
             },
             show: true,
             position: {
@@ -339,36 +349,55 @@ if (!Array.prototype.max) {
         var ymin = axes.yaxis.min;
         var ymax = axes.yaxis.max;
 
+        if (comment.x < xmin || comment.x > xmax || comment.y < ymin || comment.y > ymax) {
+            return;
+        }
+
         var commentOptions = plot.getOptions().comment || {};
 
-        var notchPosition = comment.notch && comment.notch.position
+        var notchPosition = comment.position
+            || comment.notch && comment.notch.position
             || commentOptions.notch && commentOptions.notch.position
             || 'bottom';
 
         var html = commentOptions.htmlTemplate(comment.contents, notchPosition);
 
         var size = measureHtmlSize($(html)[0].innerHTML, plot.getPlaceholder()[0], commentOptions.wrapperCss || null);
-        if (comment.x >= xmin && comment.x <= xmax) {
-            if (comment.y >= ymin && comment.y <= ymax) {
-                var canvasX = xaxis.p2c(comment.x) + plot.getPlotOffset().left - size.width / 2 + (comment.offsetX || 0);
-                var canvasY;
+        var offsetX = comment.offsetX || 0;
+        var offsetY = comment.offsetY || 0;
+        var notchSize = parseFloat(commentOptions.notch.size);
 
-                switch (notchPosition.toLowerCase()) {
-                    case 'top':
-                        canvasY = yaxis.p2c(comment.y) + plot.getPlotOffset().top + parseFloat(commentOptions.notch.size) - (comment.offsetY || 0);
-                        break;
-                    default:
-                        canvasY = yaxis.p2c(comment.y) + plot.getPlotOffset().top - size.height - parseFloat(commentOptions.notch.size) + (comment.offsetY || 0);
-                        break;
-                }
+        var canvasX = xaxis.p2c(comment.x) + plot.getPlotOffset().left;
+        var canvasY = yaxis.p2c(comment.y) + plot.getPlotOffset().top;
 
-                $(html)
-                    .css(commentOptions.wrapperCss)
-                    .css(commentOptions.position.x(canvasX))
-                    .css(commentOptions.position.y(canvasY))
-                    .appendTo(plot.getPlaceholder());
-            }
+        switch (notchPosition.toLowerCase()) {
+            case 'center':
+                canvasX += -size.width / 2 + offsetX;
+                canvasY += -size.height / 2 + offsetY;
+                break;
+            case 'left':
+                canvasX += notchSize - offsetX;
+                canvasY += -size.height / 2 + offsetY;
+                break;
+            case 'right':
+                canvasX += -size.width - notchSize + offsetY;
+                canvasY += -size.height / 2 + offsetY;
+                break;
+            case 'top':
+                canvasX += -size.width / 2 + offsetX;
+                canvasY += notchSize - offsetY;
+                break;
+            default:
+                canvasX += -size.width / 2 + offsetX;
+                canvasY += -size.height - notchSize + offsetY;
+                break;
         }
+
+        $(html)
+            .css(commentOptions.wrapperCss)
+            .css(commentOptions.position.x(canvasX))
+            .css(commentOptions.position.y(canvasY))
+            .appendTo(plot.getPlaceholder());
     }
 
     // Marking:
